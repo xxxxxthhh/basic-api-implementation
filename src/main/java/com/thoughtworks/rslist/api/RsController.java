@@ -49,11 +49,16 @@ public class RsController {
     }
 
     @PostMapping("/rs/update")
-    public List<RsEvent> updateEvent(@RequestParam String updateIndex, @RequestParam String eventName, @RequestParam String keyword) {
+    protected List<RsEvent> updateEvent(@RequestParam String updateIndex, @RequestParam String eventName, @RequestParam String keyword) {
         RsEvent rsEvent = rsList.get(Integer.parseInt(updateIndex) - 1);
         if (eventName != null) rsEvent.setEventName(eventName);
         if (keyword != null) rsEvent.setKeyword(keyword);
         return rsList;
     }
 
+    @GetMapping("/rs/delEvent/{index}")
+    public List<RsEvent> delEvent(@PathVariable int index) {
+        rsList.remove(index -1);
+        return rsList;
+    }
 }
