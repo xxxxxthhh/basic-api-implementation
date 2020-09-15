@@ -1,5 +1,7 @@
 package com.thoughtworks.rslist;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thoughtworks.rslist.dto.RsEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +79,11 @@ class RsListApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)));
 
-        mockMvc.perform(post("/rs/event").content("{\"eventName\":\"第四条事件\",\"keyword\":\"经济\"}")
+        RsEvent rsEvent = new RsEvent("第四条事件", "经济");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(rsEvent);
+
+        mockMvc.perform(post("/rs/event").content(json)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
@@ -94,4 +100,18 @@ class RsListApplicationTests {
                 .andExpect(jsonPath("$[3].keyword", is("经济")));
 
     }
+
+    @Test
+    void update_one_Rs_event() throws Exception {
+        // RsEvent rsEvent = new RsEvent("第五条事件","花边新闻");
+        mockMvc.perform(post("/rs/update")
+                .param("updateIndex", "1")
+                .param("eventName","第五条事件")
+                .param("keyword","花边新闻"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].eventName", is("第五条事件")))
+                .andExpect(jsonPath("$[0].keyword", is("花边新闻")));
+    }
+
 }

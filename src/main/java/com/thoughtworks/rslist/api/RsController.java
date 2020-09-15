@@ -1,5 +1,7 @@
 package com.thoughtworks.rslist.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.org.apache.xml.internal.security.Init;
 import com.thoughtworks.rslist.dto.RsEvent;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +16,9 @@ public class RsController {
 
     private List<RsEvent> initRsList() {
         List<RsEvent> tempRsList = new ArrayList<>();
-        tempRsList.add(new RsEvent( "第一条事件","无分类"));
-        tempRsList.add(new RsEvent( "第二条事件","无分类"));
-        tempRsList.add(new RsEvent( "第三条事件","无分类"));
+        tempRsList.add(new RsEvent("第一条事件", "无分类"));
+        tempRsList.add(new RsEvent("第二条事件", "无分类"));
+        tempRsList.add(new RsEvent("第三条事件", "无分类"));
         return tempRsList;
     }
     // @GetMapping("/rs/list")
@@ -40,8 +42,18 @@ public class RsController {
     }
 
     @PostMapping("/rs/event")
-    public void addRsEvent(@RequestBody RsEvent rsEvent) {
+    public void addRsEvent(@RequestBody String rsEventStr) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        RsEvent rsEvent = objectMapper.readValue(rsEventStr, RsEvent.class);
         rsList.add(rsEvent);
+    }
+
+    @PostMapping("/rs/update")
+    public List<RsEvent> updateEvent(@RequestParam String updateIndex, @RequestParam String eventName, @RequestParam String keyword) {
+        RsEvent rsEvent = rsList.get(Integer.parseInt(updateIndex) - 1);
+        if (eventName != null) rsEvent.setEventName(eventName);
+        if (keyword != null) rsEvent.setKeyword(keyword);
+        return rsList;
     }
 
 }
