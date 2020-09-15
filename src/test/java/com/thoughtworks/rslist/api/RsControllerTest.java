@@ -1,4 +1,4 @@
-package com.thoughtworks.rslist;
+package com.thoughtworks.rslist.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,22 +6,23 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class RsListApplicationTests {
+
+class RsControllerTest {
 
     @Autowired
     MockMvc mockMvc;
 
     @Test
-    void contextLoads() throws Exception {
+    void should_get_rs_list() throws Exception{
         mockMvc.perform(get("/rs/list"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("[第一条事件, 第二条事件, 第三条事件]"));
     }
-
 }
