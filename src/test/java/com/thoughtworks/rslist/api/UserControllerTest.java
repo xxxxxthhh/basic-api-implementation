@@ -4,6 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import org.json.JSONArray;
+import org.json.JSONString;
 import org.junit.jupiter.api.Test;
 
 import org.mockito.Mock;
@@ -39,7 +43,7 @@ class UserControllerTest {
                 .content(userDtoJson)
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isCreated())
-        .andExpect(header().string("index","1"));
+                .andExpect(header().string("index", "1"));
     }
 
     @Test
@@ -170,5 +174,30 @@ class UserControllerTest {
                 .content(userDtoJson)
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void get_all_users() throws Exception {
+        // ObjectMapper objectMapper = new ObjectMapper();
+        // String ansStr = "{\"name\":\"youtube\",\"gender\":\"male\",\"age\":20,\"email\":\"abcdefg@gmail.com\",\"phone\":\"17628282910\"}";
+        // String newStr = objectMapper.writeValueAsString(ansStr);
+        // String jStr = objectMapper.writeValueAsString(ans);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", "youtube");
+        jsonObject.put("gender", "male");
+        jsonObject.put("age", 20);
+        jsonObject.put("email", "abcdefg@gmail.com");
+        jsonObject.put("phone", "17628282910");
+
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put("name:youtube");
+        jsonArray.put("gender:male");
+        jsonArray.put("age:20");
+        jsonArray.put("email:abcdefg@gmail.com");
+        jsonArray.put("phone:17628282910");
+
+        mockMvc.perform(get("/get/users"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(jsonObject.toJSONString()));
     }
 }
