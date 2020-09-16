@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.org.apache.xml.internal.security.Init;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -26,6 +27,7 @@ public class RsController {
         tempRsList.add(new RsEvent("第三条事件", "无分类", userDto));
         return tempRsList;
     }
+
     // @GetMapping("/rs/list")
     // public String getAllRs() {
     //     return rsList.toString();
@@ -50,7 +52,10 @@ public class RsController {
     public void addRsEvent(@RequestBody String rsEventStr) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         RsEvent rsEvent = objectMapper.readValue(rsEventStr, RsEvent.class);
+        UserDto userDto = objectMapper.readValue(rsEvent.getUserInfo().toString(),UserDto.class);
         rsList.add(rsEvent);
+        // List<UserDto> userList = getUserListFromUserDtos();
+        // userList.add(userDto);
     }
 
     @PostMapping("/rs/update")
@@ -65,6 +70,10 @@ public class RsController {
     public List<RsEvent> delEvent(@PathVariable int index) {
         rsList.remove(index - 1);
         return rsList;
+    }
+
+    public String getUserListFromUserDtos() {
+        return "redirect:/user/list";
     }
 
 }

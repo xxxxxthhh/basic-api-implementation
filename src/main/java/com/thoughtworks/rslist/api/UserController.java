@@ -13,10 +13,22 @@ import java.util.List;
 @RestController
 public class UserController {
 
-    private List<UserDto> userDtos = new ArrayList<>();
+    private List<UserDto> userList = initUserList();
+
+    private List<UserDto> initUserList() {
+        List<UserDto> tempUserList = new ArrayList<>();
+        UserDto userDto = new UserDto("youtube", "male", 20, "abcdefg@gmail.com", "17628282910");
+        tempUserList.add(userDto);
+        return tempUserList;
+    }
 
     @PostMapping("/user/register")
     public void register(@Valid @RequestBody UserDto userDto) {
-        userDtos.add(userDto);
+        userList.add(userDto);
+    }
+
+    @PostMapping("/user/list")
+    public List<UserDto> getUserList() {
+        return userList;
     }
 }
