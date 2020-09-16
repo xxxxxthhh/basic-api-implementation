@@ -3,7 +3,6 @@ package com.thoughtworks.rslist.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.org.apache.xml.internal.security.Init;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -54,7 +53,6 @@ public class RsController {
     public ResponseEntity addRsEvent(@RequestBody String rsEventStr) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         RsEvent rsEvent = objectMapper.readValue(rsEventStr, RsEvent.class);
-        // UserDto userDto = objectMapper.readValue(rsEvent.getUserInfo(),UserDto.class);
         UserDto userDto = rsEvent.getUserInfo();
         rsList.add(rsEvent);
         if (userList.stream().noneMatch(currentUser -> currentUser.getName().equals(userDto.getName()))) {

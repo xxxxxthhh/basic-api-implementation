@@ -3,6 +3,7 @@ package com.thoughtworks.rslist.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
+import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.json.JSONString;
 import org.junit.jupiter.api.Test;
@@ -14,12 +15,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.ResultMatcher.*;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static com.sun.tools.doclint.Entity.not;
+import static org.assertj.core.api.AssertionsForClassTypes.not;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.JsonPathResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -40,6 +45,8 @@ class RsControllerTest {
     void should_return_all_rs_event() throws Exception {
         mockMvc.perform(get("/rs/list"))
                 .andExpect(status().isOk())
+                // .andExpect(jsonPath("$[0]",not(hasKey("userInfo"))))
+
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
                 .andExpect(jsonPath("$[0].keyword", is("无分类")))
@@ -47,6 +54,7 @@ class RsControllerTest {
                 .andExpect(jsonPath("$[1].keyword", is("无分类")))
                 .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
                 .andExpect(jsonPath("$[2].keyword", is("无分类")));
+                // .andExpect(jsonPath("$[0]", not(hasKey("userInfo"))));
     }
 
     @Test
@@ -134,6 +142,12 @@ class RsControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].eventName", is("第二条事件")))
                 .andExpect(jsonPath("$[0].keyword", is("无分类")));
+    }
+
+    @Test
+    void should_return_all_rs_event_without_users() throws Exception {
+        mockMvc.perform(get("/rs/list"))
+                .andExpect(jsonPath("$[0]", Matchers.not(hasProperty("userInfo"))));
     }
 
 }

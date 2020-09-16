@@ -1,5 +1,8 @@
 package com.thoughtworks.rslist.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties("userInfo")
 public class RsEvent {
     private String eventName;
     private String keyword;
@@ -35,7 +38,7 @@ public class RsEvent {
         return user;
     }
 
-    public void setUserInfo(UserDto userInfo) {
-        this.user = userInfo;
+    public void setUser(UserDto user) {
+        this.user = user;
     }
 }
