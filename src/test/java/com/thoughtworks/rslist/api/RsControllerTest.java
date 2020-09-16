@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+
 class RsControllerTest {
 
     @Autowired
@@ -94,7 +95,7 @@ class RsControllerTest {
 
         mockMvc.perform(post("/rs/event").content(json)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         mockMvc.perform(get("/rs/list"))
                 .andExpect(status().isOk())
@@ -133,4 +134,5 @@ class RsControllerTest {
                 .andExpect(jsonPath("$[0].eventName", is("第二条事件")))
                 .andExpect(jsonPath("$[0].keyword", is("无分类")));
     }
+
 }

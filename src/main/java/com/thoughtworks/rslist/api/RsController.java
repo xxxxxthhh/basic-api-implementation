@@ -7,6 +7,7 @@ import com.sun.org.apache.xml.internal.security.Init;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -36,42 +37,43 @@ public class RsController {
 
 
     @GetMapping("/rs/{index}")
-    public RsEvent getRsEvent(@PathVariable int index) {
-        return rsList.get(index - 1);
+    public ResponseEntity<RsEvent> getRsEvent(@PathVariable int index) {
+        return ResponseEntity.ok(rsList.get(index - 1));
     }
 
     @GetMapping("/rs/list")
-    public List<RsEvent> getRsEventByRange(@RequestParam(required = false) Integer start,
-                                           @RequestParam(required = false) Integer end) {
+    public ResponseEntity<List<RsEvent>> getRsEventByRange(@RequestParam(required = false) Integer start,
+                                                           @RequestParam(required = false) Integer end) {
         if (start == null || end == null) {
-            return rsList;
+            return ResponseEntity.ok(rsList);
         }
-        return rsList.subList(start - 1, end);
+        return ResponseEntity.ok(rsList.subList(start - 1, end));
     }
 
     @PostMapping("/rs/event")
-    public void addRsEvent(@RequestBody String rsEventStr) throws JsonProcessingException {
+    public ResponseEntity addRsEvent(@RequestBody String rsEventStr) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         RsEvent rsEvent = objectMapper.readValue(rsEventStr, RsEvent.class);
         // UserDto userDto = objectMapper.readValue(rsEvent.getUserInfo(),UserDto.class);
         UserDto userDto = rsEvent.getUserInfo();
         rsList.add(rsEvent);
-        if (!userList.stream().anyMatch(currentUser -> currentUser.getName().equals(userDto.getName()))){
+        if (!userList.stream().anyMatch(currentUser -> currentUser.getName().equals(userDto.getName()))) {
             userList.add(userDto);
         }
+        return ResponseEntity.created(null).build();
     }
 
     @PostMapping("/rs/update")
-    protected List<RsEvent> updateEvent(@RequestParam String updateIndex, @RequestParam String eventName, @RequestParam String keyword) {
+    protected ResponseEntity<List<RsEvent>> updateEvent(@RequestParam String updateIndex, @RequestParam String eventName, @RequestParam String keyword) {
         RsEvent rsEvent = rsList.get(Integer.parseInt(updateIndex) - 1);
         if (eventName != null) rsEvent.setEventName(eventName);
         if (keyword != null) rsEvent.setKeyword(keyword);
-        return rsList;
+        return ResponseEntity.status(201).body(rsList);
     }
 
     @GetMapping("/rs/delEvent/{index}")
-    public List<RsEvent> delEvent(@PathVariable int index) {
+    public ResponseEntity<List<RsEvent>> delEvent(@PathVariable int index) {
         rsList.remove(index - 1);
-        return rsList;
+        return ResponseEntity.ok(rsList);
     }
 }
