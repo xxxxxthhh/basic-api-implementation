@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Data
 @AllArgsConstructor
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotEmpty;
 public class UserDto {
 
     @NotEmpty
+    @Size(max = 8)
     private String name;
     @NotEmpty
     private String gender;

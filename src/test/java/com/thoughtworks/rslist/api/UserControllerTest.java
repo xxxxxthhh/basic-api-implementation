@@ -41,7 +41,20 @@ class UserControllerTest {
 
     @Test
     void can_not_register_if_name_is_empty() throws Exception {
-        UserDto userDto = new UserDto("", "female", 20, "alibaba@twuc.com", "17628282910");
+        UserDto userDto = new UserDto(null, "female", 20, "alibaba@twuc.com", "17628282910");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userDtoJson = objectMapper.writeValueAsString(userDto);
+
+        mockMvc.perform(post("/user/register")
+                .content(userDtoJson)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void can_not_register_if_name_longer_tham_8() throws Exception {
+        UserDto userDto = new UserDto("youtubeBLogger", "female", 20, "alibaba@twuc.com", "17628282910");
 
         ObjectMapper objectMapper = new ObjectMapper();
         String userDtoJson = objectMapper.writeValueAsString(userDto);
