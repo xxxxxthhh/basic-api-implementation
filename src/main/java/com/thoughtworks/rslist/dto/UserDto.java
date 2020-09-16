@@ -22,6 +22,7 @@ public class UserDto {
     @NotNull
     private Integer age;
     @NotEmpty
+    @Email
     private String email;
     @NotEmpty
     private String phone;
