@@ -90,6 +90,7 @@ class RsControllerTest {
         RsEvent rsEvent = new RsEvent("第四条事件", "经济", userDto);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(rsEvent);
+        String user = "{name=google, gender=male, age=20, email=abcdefg@gmail.com, phone=17628282910}";
 
         mockMvc.perform(post("/rs/event").content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -106,7 +107,8 @@ class RsControllerTest {
                 .andExpect(jsonPath("$[2].keyword", is("无分类")))
                 .andExpect(jsonPath("$[3].eventName", is("第四条事件")))
                 .andExpect(jsonPath("$[3].keyword", is("经济")));
-        // .andExpect(jsonPath("$[3].userInfo", );
+
+                // .andExpect(jsonPath("$[3].userInfo", );
 
     }
 

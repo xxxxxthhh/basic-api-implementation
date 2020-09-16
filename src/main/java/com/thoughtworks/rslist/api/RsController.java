@@ -74,9 +74,4 @@ public class RsController {
         rsList.remove(index - 1);
         return rsList;
     }
-
-    public String getUserListFromUserDtos() {
-        return "redirect:/user/list";
-    }
-
 }
