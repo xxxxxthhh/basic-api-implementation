@@ -3,9 +3,9 @@ package com.thoughtworks.rslist.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 @Data
 @AllArgsConstructor
@@ -17,7 +17,9 @@ public class UserDto {
     private String name;
     @NotEmpty
     private String gender;
-
+    @Min(18)
+    @Max(100)
+    @NotNull
     private Integer age;
     @NotEmpty
     private String email;
