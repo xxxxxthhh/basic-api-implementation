@@ -31,7 +31,8 @@ public class UserController {
     @PostMapping("/user/register")
     public ResponseEntity register(@Valid @RequestBody UserDto userDto) {
         userList.add(userDto);
-        return ResponseEntity.created(null).build();
+        return ResponseEntity.created(null)
+                .header("index", String.valueOf(userList.indexOf(userDto))).build();
     }
 
 }

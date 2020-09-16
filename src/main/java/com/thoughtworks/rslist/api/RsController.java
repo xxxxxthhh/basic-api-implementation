@@ -57,10 +57,10 @@ public class RsController {
         // UserDto userDto = objectMapper.readValue(rsEvent.getUserInfo(),UserDto.class);
         UserDto userDto = rsEvent.getUserInfo();
         rsList.add(rsEvent);
-        if (!userList.stream().anyMatch(currentUser -> currentUser.getName().equals(userDto.getName()))) {
+        if (userList.stream().noneMatch(currentUser -> currentUser.getName().equals(userDto.getName()))) {
             userList.add(userDto);
         }
-        return ResponseEntity.created(null).build();
+        return ResponseEntity.created(null).header("index", String.valueOf(rsList.indexOf(rsEvent))).build();
     }
 
     @PostMapping("/rs/update")
@@ -68,7 +68,7 @@ public class RsController {
         RsEvent rsEvent = rsList.get(Integer.parseInt(updateIndex) - 1);
         if (eventName != null) rsEvent.setEventName(eventName);
         if (keyword != null) rsEvent.setKeyword(keyword);
-        return ResponseEntity.status(201).body(rsList);
+        return ResponseEntity.status(201).header("index", String.valueOf(rsList.indexOf(rsEvent))).body(rsList);
     }
 
     @GetMapping("/rs/delEvent/{index}")

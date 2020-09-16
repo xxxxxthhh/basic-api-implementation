@@ -38,7 +38,8 @@ class UserControllerTest {
         mockMvc.perform(post("/user/register")
                 .content(userDtoJson)
                 .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isCreated());
+        ).andExpect(status().isCreated())
+        .andExpect(header().string("index","1"));
     }
 
     @Test

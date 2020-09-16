@@ -24,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-
 class RsControllerTest {
 
     @Autowired
@@ -95,7 +94,8 @@ class RsControllerTest {
 
         mockMvc.perform(post("/rs/event").content(json)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(header().string("index", "3"));
 
         mockMvc.perform(get("/rs/list"))
                 .andExpect(status().isOk())
@@ -109,7 +109,7 @@ class RsControllerTest {
                 .andExpect(jsonPath("$[3].eventName", is("第四条事件")))
                 .andExpect(jsonPath("$[3].keyword", is("经济")));
 
-                // .andExpect(jsonPath("$[3].userInfo", );
+        // .andExpect(jsonPath("$[3].userInfo", );
 
     }
 
@@ -120,7 +120,8 @@ class RsControllerTest {
                 .param("updateIndex", "1")
                 .param("eventName", "第五条事件")
                 .param("keyword", "花边新闻"))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
+                .andExpect(header().string("index","0"))
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("第五条事件")))
                 .andExpect(jsonPath("$[0].keyword", is("花边新闻")));
