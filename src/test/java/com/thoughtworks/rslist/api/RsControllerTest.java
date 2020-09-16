@@ -2,6 +2,7 @@ package com.thoughtworks.rslist.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.RsEvent;
+import com.thoughtworks.rslist.dto.UserDto;
 import org.junit.jupiter.api.Test;
 
 import org.mockito.Mock;
@@ -84,7 +85,8 @@ class RsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)));
 
-        RsEvent rsEvent = new RsEvent("第四条事件", "经济");
+        UserDto userDto = new UserDto("youtube", "male", 20, "abcdefg@gmail.com", "17628282910");
+        RsEvent rsEvent = new RsEvent("第四条事件", "经济", userDto);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(rsEvent);
 
@@ -102,7 +104,7 @@ class RsControllerTest {
                 .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
                 .andExpect(jsonPath("$[2].keyword", is("无分类")))
                 .andExpect(jsonPath("$[3].eventName", is("第四条事件")))
-                .andExpect(jsonPath("$[3].keyword", is("经济")));
+                .andExpect(jsonPath("$[3].keyword", is("经")));
 
     }
 

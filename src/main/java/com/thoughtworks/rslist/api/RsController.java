@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.org.apache.xml.internal.security.Init;
 import com.thoughtworks.rslist.dto.RsEvent;
+import com.thoughtworks.rslist.dto.UserDto;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -19,9 +20,10 @@ public class RsController {
 
     private List<RsEvent> initRsList() {
         List<RsEvent> tempRsList = new ArrayList<>();
-        tempRsList.add(new RsEvent("第一条事件", "无分类"));
-        tempRsList.add(new RsEvent("第二条事件", "无分类"));
-        tempRsList.add(new RsEvent("第三条事件", "无分类"));
+        UserDto userDto = new UserDto("youtube", "male", 20, "abcdefg@gmail.com", "17628282910");
+        tempRsList.add(new RsEvent("第一条事件", "无分类", userDto));
+        tempRsList.add(new RsEvent("第二条事件", "无分类", userDto));
+        tempRsList.add(new RsEvent("第三条事件", "无分类", userDto));
         return tempRsList;
     }
     // @GetMapping("/rs/list")
@@ -61,7 +63,7 @@ public class RsController {
 
     @GetMapping("/rs/delEvent/{index}")
     public List<RsEvent> delEvent(@PathVariable int index) {
-        rsList.remove(index -1);
+        rsList.remove(index - 1);
         return rsList;
     }
 
