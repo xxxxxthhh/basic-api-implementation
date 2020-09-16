@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.validation.constraints.Size;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -55,6 +57,19 @@ class UserControllerTest {
     @Test
     void can_not_register_if_name_longer_tham_8() throws Exception {
         UserDto userDto = new UserDto("youtubeBLogger", "female", 20, "alibaba@twuc.com", "17628282910");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userDtoJson = objectMapper.writeValueAsString(userDto);
+
+        mockMvc.perform(post("/user/register")
+                .content(userDtoJson)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void can_not_register_if_gender_empty() throws Exception {
+        UserDto userDto = new UserDto("youtubeBLogger", "", 20, "alibaba@twuc.com", "17628282910");
 
         ObjectMapper objectMapper = new ObjectMapper();
         String userDtoJson = objectMapper.writeValueAsString(userDto);
