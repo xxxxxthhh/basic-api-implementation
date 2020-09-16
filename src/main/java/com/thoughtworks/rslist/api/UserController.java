@@ -1,5 +1,6 @@
 package com.thoughtworks.rslist.api;
 
+import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
 import org.apache.catalina.User;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,12 +11,16 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thoughtworks.rslist.api.RsController.*;
+
 @RestController
 public class UserController {
 
-    private List<UserDto> userList = initUserList();
+    public static List<UserDto> userList = initUserList();
 
-    private List<UserDto> initUserList() {
+    public List<RsEvent> rsEventList = RsController.rsList;
+
+    private static List<UserDto> initUserList() {
         List<UserDto> tempUserList = new ArrayList<>();
         UserDto userDto = new UserDto("youtube", "male", 20, "abcdefg@gmail.com", "17628282910");
         tempUserList.add(userDto);
@@ -27,8 +32,4 @@ public class UserController {
         userList.add(userDto);
     }
 
-    @PostMapping("/user/list")
-    public List<UserDto> getUserList() {
-        return userList;
-    }
 }

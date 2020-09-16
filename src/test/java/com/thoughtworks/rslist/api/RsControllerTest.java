@@ -3,6 +3,8 @@ package com.thoughtworks.rslist.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
+import org.json.JSONObject;
+import org.json.JSONString;
 import org.junit.jupiter.api.Test;
 
 import org.mockito.Mock;
@@ -22,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-
 class RsControllerTest {
 
     @Autowired
@@ -85,7 +86,7 @@ class RsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)));
 
-        UserDto userDto = new UserDto("youtube", "male", 20, "abcdefg@gmail.com", "17628282910");
+        UserDto userDto = new UserDto("google", "male", 20, "abcdefg@gmail.com", "17628282910");
         RsEvent rsEvent = new RsEvent("第四条事件", "经济", userDto);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(rsEvent);
@@ -104,7 +105,8 @@ class RsControllerTest {
                 .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
                 .andExpect(jsonPath("$[2].keyword", is("无分类")))
                 .andExpect(jsonPath("$[3].eventName", is("第四条事件")))
-                .andExpect(jsonPath("$[3].keyword", is("经")));
+                .andExpect(jsonPath("$[3].keyword", is("经济")));
+        // .andExpect(jsonPath("$[3].userInfo", );
 
     }
 
@@ -113,8 +115,8 @@ class RsControllerTest {
         // RsEvent rsEvent = new RsEvent("第五条事件","花边新闻");
         mockMvc.perform(post("/rs/update")
                 .param("updateIndex", "1")
-                .param("eventName","第五条事件")
-                .param("keyword","花边新闻"))
+                .param("eventName", "第五条事件")
+                .param("keyword", "花边新闻"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("第五条事件")))
@@ -126,7 +128,7 @@ class RsControllerTest {
         mockMvc.perform(get("/rs/delEvent/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].eventName",is("第二条事件")))
+                .andExpect(jsonPath("$[0].eventName", is("第二条事件")))
                 .andExpect(jsonPath("$[0].keyword", is("无分类")));
     }
 }

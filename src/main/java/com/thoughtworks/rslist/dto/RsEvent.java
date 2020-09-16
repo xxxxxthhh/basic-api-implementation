@@ -9,10 +9,10 @@ public class RsEvent {
 
     }
 
-    public RsEvent(String eventName, String keyword, UserDto userInfo) {
+    public RsEvent(String eventName, String keyword, UserDto user) {
         this.eventName = eventName;
         this.keyword = keyword;
-        this.user = userInfo;
+        this.user = user;
     }
 
     public String getEventName() {

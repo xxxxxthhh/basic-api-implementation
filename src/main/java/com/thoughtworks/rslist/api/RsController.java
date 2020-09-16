@@ -17,9 +17,10 @@ import java.util.List;
 @RestController
 public class RsController {
 
-    private List<RsEvent> rsList = initRsList();
+    public static List<RsEvent> rsList = initRsList();
+    public List<UserDto> userList = UserController.userList;
 
-    private List<RsEvent> initRsList() {
+    private static List<RsEvent> initRsList() {
         List<RsEvent> tempRsList = new ArrayList<>();
         UserDto userDto = new UserDto("youtube", "male", 20, "abcdefg@gmail.com", "17628282910");
         tempRsList.add(new RsEvent("第一条事件", "无分类", userDto));
@@ -52,10 +53,12 @@ public class RsController {
     public void addRsEvent(@RequestBody String rsEventStr) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         RsEvent rsEvent = objectMapper.readValue(rsEventStr, RsEvent.class);
-        UserDto userDto = objectMapper.readValue(rsEvent.getUserInfo().toString(),UserDto.class);
+        // UserDto userDto = objectMapper.readValue(rsEvent.getUserInfo(),UserDto.class);
+        UserDto userDto = rsEvent.getUserInfo();
         rsList.add(rsEvent);
-        // List<UserDto> userList = getUserListFromUserDtos();
-        // userList.add(userDto);
+        if (!userList.stream().anyMatch(currentUser -> currentUser.getName().equals(userDto.getName()))){
+            userList.add(userDto);
+        }
     }
 
     @PostMapping("/rs/update")
