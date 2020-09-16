@@ -144,4 +144,17 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isBadRequest());
     }
+
+    @Test
+    void can_not_register_if_phone_empty() throws Exception {
+        UserDto userDto = new UserDto("youtube", "male", 20, "xth@qq.com", "");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userDtoJson = objectMapper.writeValueAsString(userDto);
+
+        mockMvc.perform(post("/user/register")
+                .content(userDtoJson)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
+    }
 }
