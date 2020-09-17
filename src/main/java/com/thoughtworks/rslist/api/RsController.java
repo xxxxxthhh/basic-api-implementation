@@ -21,9 +21,9 @@ public class RsController {
     public static List<RsEvent> rsList = initRsList();
     public List<UserDto> userList = UserController.userList;
 
-    private static List<RsEvent> initRsList() {
+    public static List<RsEvent> initRsList() {
         List<RsEvent> tempRsList = new ArrayList<>();
-        UserDto userDto = new UserDto("youtube", "male", 20, "abcdefg@gmail.com", "17628282910");
+        UserDto userDto = new UserDto("youtube", 20, "male", "abcdefg@gmail.com", "17628282910");
         tempRsList.add(new RsEvent("第一条事件", "无分类", userDto));
         tempRsList.add(new RsEvent("第二条事件", "无分类", userDto));
         tempRsList.add(new RsEvent("第三条事件", "无分类", userDto));
@@ -41,15 +41,17 @@ public class RsController {
         return ResponseEntity.ok(rsList.get(index - 1));
     }
 
-    @GetMapping("/rs/list")
+    @GetMapping("/rs/sublist")
     public ResponseEntity<List<RsEvent>> getRsEventByRange(@RequestParam(required = false) Integer start,
                                                            @RequestParam(required = false) Integer end) {
-        if ((start<0||end>rsList.size())&&(start<end)){
-            throw new StartEndException("Invalid request param");
+
+        if (start == null || end == null) {
+            return ResponseEntity.ok(rsList);
         }
-        // if (start == null || end == null) {
-        //     return ResponseEntity.ok(rsList);
-        // }
+        if ((start<0||end>rsList.size())||(start>end)){
+            throw new StartEndException("invalid request param");
+        }
+
         return ResponseEntity.ok(rsList.subList(start - 1, end));
     }
 
@@ -57,9 +59,10 @@ public class RsController {
     public ResponseEntity addRsEvent(@RequestBody String rsEventStr) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         RsEvent rsEvent = objectMapper.readValue(rsEventStr, RsEvent.class);
-        UserDto userDto = rsEvent.getUserInfo();
+        UserDto userDto = rsEvent.getUser();
         rsList.add(rsEvent);
-        if (userList.stream().noneMatch(currentUser -> currentUser.getName().equals(userDto.getName()))) {
+        // if (userList.stream().noneMatch(currentUser -> currentUser.getName().equals(userDto.getName()))) {
+        if (!userList.contains(userDto)) {
             userList.add(userDto);
         }
         return ResponseEntity.created(null).header("index", String.valueOf(rsList.indexOf(rsEvent))).build();
