@@ -8,6 +8,7 @@ import com.thoughtworks.rslist.entity.UserEntity;
 import com.thoughtworks.rslist.repository.UserRepository;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+import org.hibernate.sql.Delete;
 import org.json.JSONArray;
 import org.json.JSONString;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +28,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -42,8 +42,16 @@ class UserControllerTest {
     ObjectMapper objectMapper;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         objectMapper = new ObjectMapper();
+    }
+
+    void initUser() throws Exception {
+        UserDto userDto = new UserDto("Alibaba", 20, "male", "alibaba@twuc.com", "17628282910");
+        String request = objectMapper.writeValueAsString(userDto);
+
+        mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(request))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -62,16 +70,32 @@ class UserControllerTest {
 
     @Test
     void get_user_by_id() throws Exception {
-        UserDto userDto = new UserDto("Alibaba", 20, "male", "alibaba@twuc.com", "17628282910");
-        String request = objectMapper.writeValueAsString(userDto);
+        initUser();
 
-        mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(request))
-                .andExpect(status().isOk());
+        assertEquals(1, userRepository.findAll().size());
 
         mockMvc.perform(get("/user/get/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username", is("Alibaba")))
                 .andExpect(jsonPath("$.age", is(20)));
+    }
+
+    @Test
+    void delete_user_by_id() throws Exception {
+        initUser();
+
+        List<UserEntity> users = userRepository.findAll();
+
+        try {
+            assertEquals(1, userRepository.findAll().size());
+
+            mockMvc.perform(delete("/user/del/{id}", users.get(0).getId())).andExpect(status().isOk());
+
+            assertEquals(0, userRepository.findAll().size());
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+
     }
 
     // @Test

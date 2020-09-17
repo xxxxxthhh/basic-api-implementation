@@ -73,6 +73,13 @@ public class UserController {
                 .build());
     }
 
+    @DeleteMapping("/user/del/{id}")
+    public ResponseEntity delUserById(@PathVariable int id){
+        userRepository.deleteById(id);
+        return ResponseEntity.ok(null);
+    }
+
+
     @PostMapping("/user/register")
     public ResponseEntity register(@Valid @RequestBody UserDto userDto) {
         userList.add(userDto);
