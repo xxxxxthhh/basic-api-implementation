@@ -45,11 +45,11 @@ public class RsController {
     public ResponseEntity<List<RsEvent>> getRsEventByRange(@RequestParam(required = false) Integer start,
                                                            @RequestParam(required = false) Integer end) {
         if ((start<0||end>rsList.size())&&(start<end)){
-            throw new StartEndException("Invalid request ");
+            throw new StartEndException("Invalid request param");
         }
-        if (start == null || end == null) {
-            return ResponseEntity.ok(rsList);
-        }
+        // if (start == null || end == null) {
+        //     return ResponseEntity.ok(rsList);
+        // }
         return ResponseEntity.ok(rsList.subList(start - 1, end));
     }
 
