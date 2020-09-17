@@ -1,20 +1,33 @@
 package com.thoughtworks.rslist.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-@JsonIgnoreProperties("userInfo")
+import javax.validation.constraints.NotNull;
+
+@AllArgsConstructor
+@NoArgsConstructor
 public class RsEvent {
+    @NotNull
     private String eventName;
+    @NotNull
     private String keyword;
+    @NotNull
     private UserDto user;
 
-    public RsEvent() {
 
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
     }
 
-    public RsEvent(String eventName, String keyword, UserDto user) {
-        this.eventName = eventName;
+    public void setKeyword(String keyword) {
         this.keyword = keyword;
+    }
+    @JsonProperty
+    public void setUser(UserDto user) {
         this.user = user;
     }
 
@@ -25,20 +38,8 @@ public class RsEvent {
     public String getKeyword() {
         return keyword;
     }
-
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
-    }
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
-
-    public UserDto getUserInfo() {
+    @JsonIgnore
+    public UserDto getUser() {
         return user;
-    }
-
-    public void setUser(UserDto user) {
-        this.user = user;
     }
 }

@@ -26,7 +26,7 @@ public class UserController {
 
     public List<RsEvent> rsEventList = RsController.rsList;
 
-    private static List<UserDto> initUserList() {
+    public static List<UserDto> initUserList() {
         List<UserDto> tempUserList = new ArrayList<>();
         UserDto userDto = new UserDto("youtube", "male", 20, "abcdefg@gmail.com", "17628282910");
         // UserDto userDto = new UserDto("youtube", "male", 20, "abcdefg@gmail.com", "17628282910");

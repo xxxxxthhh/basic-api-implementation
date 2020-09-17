@@ -3,9 +3,11 @@ package com.thoughtworks.rslist.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
+import org.apache.catalina.User;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.json.JSONString;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.mockito.Mock;
@@ -17,6 +19,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.ResultMatcher.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.sun.tools.doclint.Entity.not;
 import static org.assertj.core.api.AssertionsForClassTypes.not;
@@ -34,11 +39,16 @@ class RsControllerTest {
     @Autowired
     MockMvc mockMvc;
 
-    //@Test
+        //@Test
     void contextLoads() throws Exception {
         mockMvc.perform(get("/rs/list"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("[第一条事件, 第二条事件, 第三条事件]"));
+    }
+    @BeforeEach
+    void setUp() throws Exception {
+        RsController.rsList = RsController.initRsList();
+        UserController.userList = UserController.initUserList();
     }
 
     @Test
@@ -54,7 +64,7 @@ class RsControllerTest {
                 .andExpect(jsonPath("$[1].keyword", is("无分类")))
                 .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
                 .andExpect(jsonPath("$[2].keyword", is("无分类")));
-                // .andExpect(jsonPath("$[0]", not(hasKey("userInfo"))));
+        // .andExpect(jsonPath("$[0]", not(hasKey("userInfo"))));
     }
 
     @Test
@@ -129,7 +139,7 @@ class RsControllerTest {
                 .param("eventName", "第五条事件")
                 .param("keyword", "花边新闻"))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("index","0"))
+                .andExpect(header().string("index", "0"))
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("第五条事件")))
                 .andExpect(jsonPath("$[0].keyword", is("花边新闻")));
