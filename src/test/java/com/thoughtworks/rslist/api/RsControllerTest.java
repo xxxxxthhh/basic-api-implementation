@@ -104,7 +104,7 @@ class RsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)));
 
-        UserDto userDto = new UserDto("google", "male", 20, "abcdefg@gmail.com", "17628282910");
+        UserDto userDto = new UserDto("google", 20, "male", "abcdefg@gmail.com", "17628282910");
         RsEvent rsEvent = new RsEvent("第四条事件", "经济", userDto);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(rsEvent);
@@ -157,7 +157,7 @@ class RsControllerTest {
     @Test
     void should_return_all_rs_event_without_users() throws Exception {
         mockMvc.perform(get("/rs/list"))
-                .andExpect(jsonPath("$[0]", Matchers.not(hasProperty("userInfo"))));
+                .andExpect(jsonPath("$[0]", Matchers.not(hasProperty("user"))));
     }
 
 }
