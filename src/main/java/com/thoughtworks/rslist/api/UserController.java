@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.sun.org.apache.regexp.internal.RE;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.repository.UserRepository;
 import org.apache.catalina.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +27,15 @@ public class UserController {
 
     public static List<UserDto> userList = initUserList();
 
+    private final UserRepository userRepository;
+
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+
     public List<RsEvent> rsEventList = RsController.rsList;
+
 
     public static List<UserDto> initUserList() {
         List<UserDto> tempUserList = new ArrayList<>();
@@ -32,6 +43,19 @@ public class UserController {
         // UserDto userDto = new UserDto("youtube", "male", 20, "abcdefg@gmail.com", "17628282910");
         tempUserList.add(userDto);
         return tempUserList;
+    }
+
+    @PostMapping("/user")
+    public void registerInSql(@RequestBody @Valid UserDto user) {
+        UserEntity userEntity = UserEntity.builder()
+                .username(user.getName())
+                .email(user.getEmail())
+                .age(user.getAge())
+                .gender(user.getGender())
+                .phone(user.getPhone())
+                .voteNum(user.getVoteNum())
+                .build();
+        userRepository.save(userEntity);
     }
 
     @PostMapping("/user/register")

@@ -22,7 +22,7 @@ public class RsController {
 
     public static List<RsEvent> initRsList() {
         List<RsEvent> tempRsList = new ArrayList<>();
-        UserDto userDto = new UserDto("youtube", 20, "male", "abcdefg@gmail.com", "17628282910");
+        UserDto userDto = new UserDto("youtube", 20, "male", "abcdefg@gmail.com", "17628282910",10);
         tempRsList.add(new RsEvent("第一条事件", "无分类", userDto));
         tempRsList.add(new RsEvent("第二条事件", "无分类", userDto));
         tempRsList.add(new RsEvent("第三条事件", "无分类", userDto));
