@@ -11,14 +11,12 @@ import com.thoughtworks.rslist.repository.UserRepository;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.thoughtworks.rslist.api.RsController.*;
 
@@ -56,6 +54,23 @@ public class UserController {
                 .voteNum(user.getVoteNum())
                 .build();
         userRepository.save(userEntity);
+    }
+
+    @GetMapping("/user/get/{id}")
+    public ResponseEntity<UserEntity> getUserInSqlById(@PathVariable int id) throws Exception {
+        Optional<UserEntity> userDto = userRepository.findById(id);
+        if (!userDto.isPresent()) {
+            throw new Exception("Invalid Id");
+        }
+        UserEntity user = userDto.get();
+        return ResponseEntity.ok(UserEntity.builder()
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .age(user.getAge())
+                .gender(user.getGender())
+                .phone(user.getPhone())
+                .voteNum(user.getVoteNum())
+                .build());
     }
 
     @PostMapping("/user/register")

@@ -42,7 +42,7 @@ class UserControllerTest {
     ObjectMapper objectMapper;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         objectMapper = new ObjectMapper();
     }
 
@@ -58,6 +58,20 @@ class UserControllerTest {
 
         assertEquals(1, users.size());
         assertEquals("Alibaba", users.get(0).getUsername());
+    }
+
+    @Test
+    void get_user_by_id() throws Exception {
+        UserDto userDto = new UserDto("Alibaba", 20, "male", "alibaba@twuc.com", "17628282910");
+        String request = objectMapper.writeValueAsString(userDto);
+
+        mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(request))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/user/get/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username", is("Alibaba")))
+                .andExpect(jsonPath("$.age", is(20)));
     }
 
     // @Test
