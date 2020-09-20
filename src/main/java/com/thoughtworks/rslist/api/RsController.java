@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +31,7 @@ public class RsController {
     // private VoteRepository voteRepository;
     @Autowired
     private RsRepository rsRepository;
+
     public RsController(UserRepository userRepository, RsRepository rsRepository) {
         this.userRepository = userRepository;
         this.rsRepository = rsRepository;
@@ -39,7 +42,7 @@ public class RsController {
 
     public static List<RsEvent> initRsList() {
         List<RsEvent> tempRsList = new ArrayList<>();
-        UserDto userDto = new UserDto("youtube", 20, "male", "abcdefg@gmail.com", "17628282910",10);
+        UserDto userDto = new UserDto("youtube", 20, "male", "abcdefg@gmail.com", "17628282910", 10);
         tempRsList.add(new RsEvent("第一条事件", "无分类", 1));
         tempRsList.add(new RsEvent("第二条事件", "无分类", 2));
         tempRsList.add(new RsEvent("第三条事件", "无分类", 3));
@@ -54,16 +57,30 @@ public class RsController {
 
     @GetMapping("/rs/{index}")
     public ResponseEntity<RsEvent> getRsEvent(@PathVariable int index) {
-        return ResponseEntity.ok(rsList.get(index - 1));
+        Optional<RsEntity> rsEntity = rsRepository.findById(index);
+        List<RsEntity> rsEntities = rsRepository.findAll();
+        if (!rsEntity.isPresent()) {
+            return ResponseEntity.badRequest().build();
+        }
+        RsEvent rsEvent = new RsEvent(rsEntities.get(index-1).getEventName(),rsEntities.get(index-1).getKeyword(), rsEntities.get(index-1).getUserId());
+        return ResponseEntity.ok(rsEvent);
     }
 
     @GetMapping("/rs/list")
     public ResponseEntity<List<RsEvent>> getRsEventByRange(@RequestParam(required = false) Integer start,
                                                            @RequestParam(required = false) Integer end) {
-        if (start == null || end == null) {
-            return ResponseEntity.ok(rsList);
+        List<RsEntity> rsEntities = rsRepository.findAll();
+        List<RsEvent> rsEvents = new ArrayList<>();
+        for (int i = 0; i<rsEntities.size();i++){
+            RsEvent rsEvent = new RsEvent(rsEntities.get(i).getEventName(),rsEntities.get(i).getKeyword(),rsEntities.get(i).getUserId());
+
+            rsEvents.add(rsEvent);
         }
-        return ResponseEntity.ok(rsList.subList(start - 1, end));
+
+        if (start == null || end == null) {
+            return ResponseEntity.ok(rsEvents);
+        }
+        return ResponseEntity.ok(rsEvents.subList(start - 1, end));
     }
 
     @PostMapping("/rs/event")
@@ -74,8 +91,9 @@ public class RsController {
                 .keyword(rsEvent.getKeyword())
                 .userId(rsEvent.getUserID())
                 .build();
-        Optional<UserEntity> user = userRepository.findById(rsEntity.getUserId());
-        if (!user.isPresent()){
+        List<UserEntity> userEntities = userRepository.findAll();
+        Optional<UserEntity> user = userRepository.findById(rsEvent.getUserID());
+        if (!user.isPresent()) {
             return ResponseEntity.badRequest().build();
         }
         rsRepository.save(rsEntity);
@@ -99,15 +117,15 @@ public class RsController {
     @PatchMapping("/rs/update/{rsEventId}")
     public ResponseEntity updateRsEventInSql(@RequestBody @Valid RsEvent rsEvent, @PathVariable Integer rsEventId) throws Exception {
         List<RsEntity> rsEvents = rsRepository.findAll();
-        if (rsEvents.get(rsEventId-1).getUserId()!= rsEvent.getUserID()){
+        if (rsEvents.get(rsEventId - 1).getUserId() != rsEvent.getUserID()) {
             return ResponseEntity.badRequest().build();
         }
 
-        RsEntity rsEntity = rsEvents.get(rsEventId-1);
-        if (rsEvent.getEventName() != null){
+        RsEntity rsEntity = rsEvents.get(rsEventId - 1);
+        if (rsEvent.getEventName() != null) {
             rsEntity.setEventName((rsEvent.getEventName()));
         }
-        if (rsEvent.getKeyword()!= null){
+        if (rsEvent.getKeyword() != null) {
             rsEntity.setKeyword(rsEvent.getKeyword());
         }
         rsRepository.save(rsEntity);
@@ -119,14 +137,14 @@ public class RsController {
         int userId = voteEntity.getUserId();
         int voteNum = voteEntity.getVoteNum();
         List<UserEntity> users = userRepository.findAll();
-        UserEntity userEntity = users.get(userId-1);
+        UserEntity userEntity = users.get(userId - 1);
 
         List<RsEntity> rsEntities = rsRepository.findAll();
-        RsEntity rsEntity = rsEntities.get(rsEventId-1);
+        RsEntity rsEntity = rsEntities.get(rsEventId - 1);
 
-        if (userEntity.getVoteNum() < voteNum){
+        if (userEntity.getVoteNum() < voteNum) {
             return ResponseEntity.badRequest().build();
-        }else {
+        } else {
             userEntity.setVoteNum(userEntity.getVoteNum() - voteNum);
             rsEntity.setVoteNum(rsEntity.getVoteNum() + voteNum);
         }
