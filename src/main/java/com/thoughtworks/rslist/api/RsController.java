@@ -93,4 +93,22 @@ public class RsController {
         rsList.remove(index - 1);
         return ResponseEntity.ok(rsList);
     }
+
+    @PatchMapping("/rs/update/{rsEventId}")
+    public ResponseEntity updateRsEventInSql(@RequestBody @Valid RsEvent rsEvent, @PathVariable Integer rsEventId) throws Exception {
+        List<RsEntity> rsEvents = rsRepository.findAll();
+        if (rsEvents.get(rsEventId-1).getUserId()!= rsEvent.getUserID()){
+            return ResponseEntity.badRequest().build();
+        }
+
+        RsEntity rsEntity = rsEvents.get(rsEventId-1);
+        if (rsEvent.getEventName() != null){
+            rsEntity.setEventName((rsEvent.getEventName()));
+        }
+        if (rsEvent.getKeyword()!= null){
+            rsEntity.setKeyword(rsEvent.getKeyword());
+        }
+        rsRepository.save(rsEntity);
+        return ResponseEntity.ok(rsEvent);
+    }
 }

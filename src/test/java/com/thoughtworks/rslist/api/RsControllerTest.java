@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.ResultMatcher.*;
 
+import javax.sound.midi.Patch;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +32,7 @@ import static com.sun.tools.doclint.Entity.not;
 import static org.assertj.core.api.AssertionsForClassTypes.not;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.JsonPathResultMatchers.*;
 
@@ -59,6 +59,20 @@ class RsControllerTest {
     void setUp() throws Exception {
         RsController.rsList = RsController.initRsList();
         UserController.userList = UserController.initUserList();
+
+        // initUsers();
+    }
+
+    private UserEntity initUser() {
+        UserEntity userEntity = UserEntity.builder()
+                .username("user1")
+                .email("abc@163.cn")
+                .age(19)
+                .gender("male")
+                .phone("17628282910")
+                .voteNum(10)
+                .build();
+        return userEntity;
     }
 
     @Test
@@ -172,17 +186,9 @@ class RsControllerTest {
 
     @Test
     void add_rs_event_to_sql() throws Exception {
-        UserEntity userEntity = UserEntity.builder()
-                .username("user1")
-                .email("abc@163.cn")
-                .age(19)
-                .gender("male")
-                .phone("17628282910")
-                .voteNum(10)
-                .build();
-        userRepository.save(userEntity);
-        List<UserEntity> userEntities = userRepository.findAll();
 
+        UserEntity userEntity = initUser();
+        userRepository.save(userEntity);
         String jsonValue = "{\"eventName\":\"热搜事件名\", \"keyword\":\"关键字\",\"userID\":" + userEntity.getId() + "}";
 
         mockMvc.perform(post("/rs/event")
@@ -198,21 +204,58 @@ class RsControllerTest {
 
     @Test
     void only_registered_user_can_add_rs_event() throws Exception {
-        UserEntity userEntity = UserEntity.builder()
-                .username("user1")
-                .email("abc@163.cn")
-                .age(19)
-                .gender("male")
-                .phone("17628282910")
-                .voteNum(10)
-                .build();
+
+        UserEntity userEntity = initUser();
         userRepository.save(userEntity);
-        List<UserEntity> userEntities = userRepository.findAll();
 
         String jsonValue = "{\"eventName\":\"热搜事件名\", \"keyword\":\"关键字\",\"userID\":" + 2 + "}";
 
         mockMvc.perform(post("/rs/event")
                 .content(jsonValue).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void update_rs_event_in_sql() throws Exception {
+        UserEntity userEntity = initUser();
+        userRepository.save(userEntity);
+
+        RsEntity rsEntity = RsEntity.builder()
+                .eventName("猪肉太贵了")
+                .keyword("肉类")
+                .userId(userEntity.getId())
+                .build();
+        rsRepository.save(rsEntity);
+
+        String jsonValue = "{\"eventName\":\"热搜事件名\", \"keyword\":\"关键字\",\"userID\":" + rsEntity.getUserId() + "}";
+
+        mockMvc.perform(patch("/rs/update/1")
+                .content(jsonValue)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        List<RsEntity> rsEvents = rsRepository.findAll();
+        assertEquals("热搜事件名", rsEvents.get(0).getEventName());
+        assertEquals("关键字", rsEvents.get(0).getKeyword());
+        assertEquals(1,rsEvents.get(0).getUserId());
+    }
+
+    @Test
+    void user_not_match_get_400() throws Exception {
+        UserEntity userEntity = initUser();
+        userRepository.save(userEntity);
+
+        RsEntity rsEntity = RsEntity.builder()
+                .eventName("猪肉太贵了")
+                .keyword("肉类")
+                .userId(userEntity.getId())
+                .build();
+        rsRepository.save(rsEntity);
+
+        String jsonValue = "{\"eventName\":\"热搜事件名\", \"keyword\":\"关键字\",\"userID\":" + 2 + "}";
+
+        mockMvc.perform(patch("/rs/update/1")
+                .content(jsonValue)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 }

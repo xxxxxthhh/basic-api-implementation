@@ -15,7 +15,7 @@ public class RsEvent {
     @NotNull
     private String keyword;
     @NotNull
-    private int userID;
+    private Integer userID;
 
 
     public void setEventName(String eventName) {
@@ -26,7 +26,7 @@ public class RsEvent {
         this.keyword = keyword;
     }
     @JsonProperty
-    public void setUserID(int userId) {
+    public void setUserID(Integer userId) {
         this.userID = userId;
     }
 
@@ -38,7 +38,7 @@ public class RsEvent {
         return keyword;
     }
     @JsonIgnore
-    public int getUserID() {
+    public Integer getUserID() {
         return userID;
     }
 }

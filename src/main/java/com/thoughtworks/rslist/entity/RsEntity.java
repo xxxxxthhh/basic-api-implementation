@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "rs_event")
@@ -22,6 +24,6 @@ public class RsEntity {
     @Column(name = "name")
     private String eventName;
     private String keyword;
+    @NotNull
     private int userId;
-
 }
