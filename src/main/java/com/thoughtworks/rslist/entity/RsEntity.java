@@ -26,4 +26,13 @@ public class RsEntity {
     private String keyword;
     @NotNull
     private int userId;
+    private Integer voteNum = 0;
+
+    public RsEntity(Integer id, String eventName, String keyword, @NotNull int userId) {
+        this.id = id;
+        this.eventName = eventName;
+        this.keyword = keyword;
+        this.userId = userId;
+        this.voteNum = 10;
+    }
 }

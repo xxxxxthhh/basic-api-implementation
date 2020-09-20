@@ -5,36 +5,28 @@ import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.entity.RsEntity;
 import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.entity.VotyEntity;
 import com.thoughtworks.rslist.repository.RsRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
-import org.apache.catalina.User;
 import org.hamcrest.Matchers;
-import org.json.JSONObject;
-import org.json.JSONString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.test.web.servlet.ResultMatcher.*;
 
-import javax.sound.midi.Patch;
-import java.util.ArrayList;
+import java.sql.Timestamp;
 import java.util.List;
 
-import static com.sun.tools.doclint.Entity.not;
 import static org.assertj.core.api.AssertionsForClassTypes.not;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.JsonPathResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -47,6 +39,8 @@ class RsControllerTest {
     RsRepository rsRepository;
     @Autowired
     UserRepository userRepository;
+    // @Autowired
+    // VoteRepository voteRepository;
 
     //@Test
     void contextLoads() throws Exception {
@@ -73,6 +67,41 @@ class RsControllerTest {
                 .voteNum(10)
                 .build();
         return userEntity;
+    }
+
+    private List<RsEntity> initRsEvent() {
+        RsEntity rsEntity1 = RsEntity.builder()
+                .eventName("你好啊")
+                .keyword("社会")
+                .userId(1)
+                .voteNum(0)
+                .build();
+        rsRepository.save(rsEntity1);
+        RsEntity rsEntity2 = RsEntity.builder()
+                .eventName("死扑街")
+                .keyword("社会")
+                .userId(2)
+                .voteNum(0)
+                .build();
+        rsRepository.save(rsEntity2);
+        RsEntity rsEntity3 = RsEntity.builder()
+                .eventName("社会人")
+                .keyword("社会")
+                .userId(3)
+                .voteNum(0)
+                .build();
+        rsRepository.save(rsEntity3);
+        RsEntity rsEntity4 = RsEntity.builder()
+                .eventName("酸辣粉")
+                .keyword("社会")
+                .userId(4)
+                .voteNum(0)
+                .build();
+        rsRepository.save(rsEntity4);
+
+        List<RsEntity> rsEntities = rsRepository.findAll();
+
+        return rsEntities;
     }
 
     @Test
@@ -257,5 +286,46 @@ class RsControllerTest {
                 .content(jsonValue)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void vote_for_rs_event_fail_when_status() throws Exception {
+        List<RsEntity> rsEntities = initRsEvent();
+        UserEntity userEntity = initUser();
+        userRepository.save(userEntity);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        VotyEntity votyEntity = new VotyEntity(11,userEntity.getId(), new Timestamp(System.currentTimeMillis()));
+
+        String voteJson = objectMapper.writeValueAsString(votyEntity);
+
+        mockMvc.perform(post("/rs/vote/1")
+                .content(voteJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void vote_for_rs_event() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        UserEntity userEntity = initUser();
+        userRepository.save(userEntity);
+
+        List<RsEntity> rsEntities = initRsEvent();
+
+        // String voteValue = "{\"voteNum\":5, \"userId\":" + userEntity.getId() + ",\"voteTime\":" + new Timestamp(System.currentTimeMillis()) + "}";
+
+        VotyEntity votyEntity = new VotyEntity(5,userEntity.getId(), new Timestamp(System.currentTimeMillis()));
+
+        String voteJson = objectMapper.writeValueAsString(votyEntity);
+
+        mockMvc.perform(post("/rs/vote/1")
+                .content(voteJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        assertEquals(5,userRepository.findAll().get(0).getVoteNum());
+        assertEquals(5,rsRepository.findAll().get(0).getVoteNum());
     }
 }

@@ -2,21 +2,21 @@ package com.thoughtworks.rslist.api;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.entity.RsEntity;
 import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.entity.VotyEntity;
 import com.thoughtworks.rslist.repository.RsRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
-import org.omg.CosNaming.NamingContextPackage.NotEmpty;
+// import com.thoughtworks.rslist.repository.VoteRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +25,8 @@ import java.util.Optional;
 public class RsController {
     @Autowired
     private UserRepository userRepository;
+    // @Autowired
+    // private VoteRepository voteRepository;
     @Autowired
     private RsRepository rsRepository;
     public RsController(UserRepository userRepository, RsRepository rsRepository) {
@@ -110,5 +112,27 @@ public class RsController {
         }
         rsRepository.save(rsEntity);
         return ResponseEntity.ok(rsEvent);
+    }
+
+    @PostMapping("/rs/vote/{rsEventId}")
+    public ResponseEntity voteForRsEvent(@RequestBody @Valid VotyEntity voteEntity, @PathVariable Integer rsEventId) throws Exception {
+        int userId = voteEntity.getUserId();
+        int voteNum = voteEntity.getVoteNum();
+        List<UserEntity> users = userRepository.findAll();
+        UserEntity userEntity = users.get(userId-1);
+
+        List<RsEntity> rsEntities = rsRepository.findAll();
+        RsEntity rsEntity = rsEntities.get(rsEventId-1);
+
+        if (userEntity.getVoteNum() < voteNum){
+            return ResponseEntity.badRequest().build();
+        }else {
+            userEntity.setVoteNum(userEntity.getVoteNum() - voteNum);
+            rsEntity.setVoteNum(rsEntity.getVoteNum() + voteNum);
+        }
+        userRepository.save(userEntity);
+        rsRepository.save(rsEntity);
+        // voteRepository.save(voteEntity);
+        return ResponseEntity.ok(null);
     }
 }
