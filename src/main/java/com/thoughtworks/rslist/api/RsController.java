@@ -37,17 +37,17 @@ public class RsController {
         this.rsRepository = rsRepository;
     }
 
-    public static List<RsEvent> rsList = initRsList();
+    // public static List<RsEvent> rsList = initRsList();
     public List<UserDto> userList = UserController.userList;
 
-    public static List<RsEvent> initRsList() {
-        List<RsEvent> tempRsList = new ArrayList<>();
-        UserDto userDto = new UserDto("youtube", 20, "male", "abcdefg@gmail.com", "17628282910", 10);
-        tempRsList.add(new RsEvent("第一条事件", "无分类", 1));
-        tempRsList.add(new RsEvent("第二条事件", "无分类", 2));
-        tempRsList.add(new RsEvent("第三条事件", "无分类", 3));
-        return tempRsList;
-    }
+    // public static List<RsEvent> initRsList() {
+    //     List<RsEvent> tempRsList = new ArrayList<>();
+    //     UserDto userDto = new UserDto("youtube", 20, "male", "abcdefg@gmail.com", "17628282910", 10);
+    //     tempRsList.add(new RsEvent("第一条事件", "无分类", 1));
+    //     tempRsList.add(new RsEvent("第二条事件", "无分类", 2));
+    //     tempRsList.add(new RsEvent("第三条事件", "无分类", 3));
+    //     return tempRsList;
+    // }
 
     // @GetMapping("/rs/list")
     // public String getAllRs() {
@@ -62,7 +62,8 @@ public class RsController {
         if (!rsEntity.isPresent()) {
             return ResponseEntity.badRequest().build();
         }
-        RsEvent rsEvent = new RsEvent(rsEntities.get(index-1).getEventName(),rsEntities.get(index-1).getKeyword(), rsEntities.get(index-1).getUserId());
+        RsEvent rsEvent = new RsEvent(rsEntities.get(index - 1).getEventName(), rsEntities.get(index - 1).getKeyword(),
+                rsEntities.get(index - 1).getUserId(), index - 1, rsEntities.get(index - 1).getVoteNum());
         return ResponseEntity.ok(rsEvent);
     }
 
@@ -71,8 +72,9 @@ public class RsController {
                                                            @RequestParam(required = false) Integer end) {
         List<RsEntity> rsEntities = rsRepository.findAll();
         List<RsEvent> rsEvents = new ArrayList<>();
-        for (int i = 0; i<rsEntities.size();i++){
-            RsEvent rsEvent = new RsEvent(rsEntities.get(i).getEventName(),rsEntities.get(i).getKeyword(),rsEntities.get(i).getUserId());
+        for (int i = 0; i < rsEntities.size(); i++) {
+            RsEvent rsEvent = new RsEvent(rsEntities.get(i).getEventName(), rsEntities.get(i).getKeyword(),
+                    rsEntities.get(i).getUserId(),i+1,rsEntities.get(i).getVoteNum());
 
             rsEvents.add(rsEvent);
         }
@@ -83,15 +85,15 @@ public class RsController {
         return ResponseEntity.ok(rsEvents.subList(start - 1, end));
     }
 
-    @PostMapping("/rs/event")
-    public ResponseEntity addRsEvent(@RequestBody @Valid RsEvent rsEvent) throws JsonProcessingException {
+    @PostMapping("/rs/add")
+    public ResponseEntity addRsEvent(@RequestBody RsEvent rsEvent) throws JsonProcessingException {
 
         RsEntity rsEntity = RsEntity.builder()
                 .eventName(rsEvent.getEventName())
                 .keyword(rsEvent.getKeyword())
                 .userId(rsEvent.getUserID())
                 .build();
-        List<UserEntity> userEntities = userRepository.findAll();
+
         Optional<UserEntity> user = userRepository.findById(rsEvent.getUserID());
         if (!user.isPresent()) {
             return ResponseEntity.badRequest().build();
@@ -100,22 +102,16 @@ public class RsController {
         return ResponseEntity.created(null).build();
     }
 
-    @PostMapping("/rs/update")
-    protected ResponseEntity<List<RsEvent>> updateEvent(@RequestParam String updateIndex, @RequestParam String eventName, @RequestParam String keyword) {
-        RsEvent rsEvent = rsList.get(Integer.parseInt(updateIndex) - 1);
-        if (eventName != null) rsEvent.setEventName(eventName);
-        if (keyword != null) rsEvent.setKeyword(keyword);
-        return ResponseEntity.status(201).header("index", String.valueOf(rsList.indexOf(rsEvent))).body(rsList);
-    }
-
     @GetMapping("/rs/delEvent/{index}")
-    public ResponseEntity<List<RsEvent>> delEvent(@PathVariable int index) {
-        rsList.remove(index - 1);
-        return ResponseEntity.ok(rsList);
+    public ResponseEntity<List<RsEntity>> delEvent(@PathVariable int index) {
+        rsRepository.deleteById(index);
+        List<RsEntity> rsRepositoryAll = rsRepository.findAll();
+
+        return ResponseEntity.ok(rsRepositoryAll);
     }
 
     @PatchMapping("/rs/update/{rsEventId}")
-    public ResponseEntity updateRsEventInSql(@RequestBody @Valid RsEvent rsEvent, @PathVariable Integer rsEventId) throws Exception {
+    public ResponseEntity updateRsEventInSql(@RequestBody RsEvent rsEvent, @PathVariable Integer rsEventId) throws Exception {
         List<RsEntity> rsEvents = rsRepository.findAll();
         if (rsEvents.get(rsEventId - 1).getUserId() != rsEvent.getUserID()) {
             return ResponseEntity.badRequest().build();

@@ -32,7 +32,7 @@ public class UserController {
     }
 
 
-    public List<RsEvent> rsEventList = RsController.rsList;
+    // public List<RsEvent> rsEventList = RsController.rsList;
 
 
     public static List<UserDto> initUserList() {

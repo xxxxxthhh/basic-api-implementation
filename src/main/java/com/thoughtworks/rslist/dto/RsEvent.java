@@ -21,6 +21,27 @@ public class RsEvent {
     @NotNull
     private Integer userID;
 
+    public Integer getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(Integer entityId) {
+        this.entityId = entityId;
+    }
+
+    public Integer getVoteNum() {
+        return voteNum;
+    }
+
+    public void setVoteNum(Integer voteNum) {
+        this.voteNum = voteNum;
+    }
+
+    @NotNull
+    private Integer entityId;
+    @NotNull
+    private Integer voteNum;
+
 
     public void setEventName(String eventName) {
         this.eventName = eventName;
@@ -29,7 +50,7 @@ public class RsEvent {
     public void setKeyword(String keyword) {
         this.keyword = keyword;
     }
-    @JsonProperty
+    // @JsonProperty
     public void setUserID(Integer userId) {
         this.userID = userId;
     }
@@ -41,7 +62,7 @@ public class RsEvent {
     public String getKeyword() {
         return keyword;
     }
-    @JsonIgnore
+    // @JsonIgnore
     public Integer getUserID() {
         return userID;
     }
