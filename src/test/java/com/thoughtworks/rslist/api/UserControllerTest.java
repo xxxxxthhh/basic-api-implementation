@@ -4,10 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.entity.RsEntity;
 import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.repository.RsRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+import org.apache.catalina.User;
 import org.hibernate.sql.Delete;
 import org.json.JSONArray;
 import org.json.JSONString;
@@ -39,6 +42,8 @@ class UserControllerTest {
     @Autowired
     UserRepository userRepository;
     @Autowired
+    RsRepository rsRepository;
+    @Autowired
     ObjectMapper objectMapper;
 
     @BeforeEach
@@ -52,6 +57,43 @@ class UserControllerTest {
 
         mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON).content(request))
                 .andExpect(status().isOk());
+    }
+
+    private List<RsEntity> initRsEvent() {
+        List<UserEntity> userRepositoryAll = userRepository.findAll();
+        UserEntity userEntity = userRepositoryAll.get(0);
+        RsEntity rsEntity1 = RsEntity.builder()
+                .eventName("你好啊")
+                .keyword("社会")
+                .user(userEntity)
+                .voteNum(0)
+                .build();
+        rsRepository.save(rsEntity1);
+        RsEntity rsEntity2 = RsEntity.builder()
+                .eventName("死扑街")
+                .keyword("社会")
+                .user(userEntity)
+                .voteNum(0)
+                .build();
+        rsRepository.save(rsEntity2);
+        RsEntity rsEntity3 = RsEntity.builder()
+                .eventName("社会人")
+                .keyword("社会")
+                .user(userEntity)
+                .voteNum(0)
+                .build();
+        rsRepository.save(rsEntity3);
+        RsEntity rsEntity4 = RsEntity.builder()
+                .eventName("酸辣粉")
+                .keyword("社会")
+                .user(userEntity)
+                .voteNum(0)
+                .build();
+        rsRepository.save(rsEntity4);
+
+        List<RsEntity> rsEntities = rsRepository.findAll();
+
+        return rsEntities;
     }
 
     @Test
@@ -83,6 +125,7 @@ class UserControllerTest {
     @Test
     void delete_user_by_id() throws Exception {
         initUser();
+        initRsEvent();
 
         List<UserEntity> users = userRepository.findAll();
 
@@ -92,10 +135,10 @@ class UserControllerTest {
             mockMvc.perform(delete("/user/del/{id}", users.get(0).getId())).andExpect(status().isOk());
 
             assertEquals(0, userRepository.findAll().size());
+            assertEquals(0, rsRepository.findAll().size());
         } catch (Exception e) {
             throw new Exception(e);
         }
-
     }
 
     // @Test

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 @Table(name = "rs_event")
@@ -24,15 +25,21 @@ public class RsEntity {
     @Column(name = "name")
     private String eventName;
     private String keyword;
-    @NotNull
-    private int userId;
+    // @NotNull
+    // @ManyToOne
+    // @JoinColumn(name = "user_id")
+    // private Integer userId;
+    // private UserEntity user;
     private Integer voteNum = 0;
 
-    public RsEntity(Integer id, String eventName, String keyword, @NotNull int userId) {
-        this.id = id;
-        this.eventName = eventName;
-        this.keyword = keyword;
-        this.userId = userId;
-        this.voteNum = 10;
-    }
+    // @NotNull
+    // @ManyToOne
+    // @JoinColumn(name = "user_id")
+    // private UserEntity userEntity;
+    // @OneToMany(mappedBy = "rsEvent", cascade = CascadeType.REMOVE)
+    // private List<VotyEntity> votes;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 }

@@ -8,6 +8,8 @@ import com.thoughtworks.rslist.entity.UserEntity;
 import com.thoughtworks.rslist.entity.VotyEntity;
 import com.thoughtworks.rslist.repository.RsRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
+import com.thoughtworks.rslist.repository.VoteRepository;
+import org.apache.catalina.User;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.text.SimpleDateFormat;
+import java.text.SimpleDateFormat.*;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.not;
@@ -39,8 +44,10 @@ class RsControllerTest {
     RsRepository rsRepository;
     @Autowired
     UserRepository userRepository;
-    // @Autowired
-    // VoteRepository voteRepository;
+    @Autowired
+    VoteRepository voteRepository;
+
+    SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
 
     //@Test
     void contextLoads() throws Exception {
@@ -70,31 +77,33 @@ class RsControllerTest {
     }
 
     private List<RsEntity> initRsEvent() {
+        UserEntity userEntity = initUser();
+        userRepository.save(userEntity);
         RsEntity rsEntity1 = RsEntity.builder()
                 .eventName("你好啊")
                 .keyword("社会")
-                .userId(1)
+                .user(userEntity)
                 .voteNum(0)
                 .build();
         rsRepository.save(rsEntity1);
         RsEntity rsEntity2 = RsEntity.builder()
                 .eventName("死扑街")
                 .keyword("社会")
-                .userId(2)
+                .user(userEntity)
                 .voteNum(0)
                 .build();
         rsRepository.save(rsEntity2);
         RsEntity rsEntity3 = RsEntity.builder()
                 .eventName("社会人")
                 .keyword("社会")
-                .userId(3)
+                .user(userEntity)
                 .voteNum(0)
                 .build();
         rsRepository.save(rsEntity3);
         RsEntity rsEntity4 = RsEntity.builder()
                 .eventName("酸辣粉")
                 .keyword("社会")
-                .userId(4)
+                .user(userEntity)
                 .voteNum(0)
                 .build();
         rsRepository.save(rsEntity4);
@@ -239,7 +248,7 @@ class RsControllerTest {
 
         assertEquals(1, rsEvents.size());
         assertEquals("热搜事件", rsEvents.get(0).getEventName());
-        assertEquals(userEntity.getId(), rsEvents.get(0).getUserId());
+        assertEquals(userEntity.getId(), rsEvents.get(0).getUser().getId());
     }
 
     @Test
@@ -264,7 +273,7 @@ class RsControllerTest {
         RsEntity rsEntity = RsEntity.builder()
                 .eventName("猪肉太贵了")
                 .keyword("肉类")
-                .userId(userEntity.getId())
+                .user(userEntity)
                 .build();
         rsRepository.save(rsEntity);
 
@@ -278,7 +287,7 @@ class RsControllerTest {
         List<RsEntity> rsEvents = rsRepository.findAll();
         assertEquals("热搜事件", rsEvents.get(0).getEventName());
         assertEquals("关键字", rsEvents.get(0).getKeyword());
-        assertEquals(1, rsEvents.get(0).getUserId());
+        assertEquals(1, rsEvents.get(0).getUser().getId());
     }
 
     @Test
@@ -289,7 +298,7 @@ class RsControllerTest {
         RsEntity rsEntity = RsEntity.builder()
                 .eventName("猪肉太贵了")
                 .keyword("肉类")
-                .userId(userEntity.getId())
+                .user(userEntity)
                 .build();
         rsRepository.save(rsEntity);
 
@@ -307,8 +316,9 @@ class RsControllerTest {
         UserEntity userEntity = initUser();
         userRepository.save(userEntity);
         ObjectMapper objectMapper = new ObjectMapper();
+        Date now = new Date();
 
-        VotyEntity votyEntity = new VotyEntity(11, userEntity.getId(), new Timestamp(System.currentTimeMillis()));
+        VotyEntity votyEntity = new VotyEntity(1,1,1,ft.format(now));
 
         String voteJson = objectMapper.writeValueAsString(votyEntity);
 
@@ -328,8 +338,8 @@ class RsControllerTest {
         List<RsEntity> rsEntities = initRsEvent();
 
         // String voteValue = "{\"voteNum\":5, \"userId\":" + userEntity.getId() + ",\"voteTime\":" + new Timestamp(System.currentTimeMillis()) + "}";
-
-        VotyEntity votyEntity = new VotyEntity(5, userEntity.getId(), new Timestamp(System.currentTimeMillis()));
+        Date now = new Date();
+        VotyEntity votyEntity = new VotyEntity(1, 5,1, ft.format(now));
 
         String voteJson = objectMapper.writeValueAsString(votyEntity);
 

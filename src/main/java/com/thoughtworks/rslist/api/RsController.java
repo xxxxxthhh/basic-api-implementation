@@ -11,6 +11,7 @@ import com.thoughtworks.rslist.repository.RsRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 // import com.thoughtworks.rslist.repository.VoteRepository;
 
+import com.thoughtworks.rslist.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +28,8 @@ import java.util.Optional;
 public class RsController {
     @Autowired
     private UserRepository userRepository;
-    // @Autowired
-    // private VoteRepository voteRepository;
+    @Autowired
+    private VoteRepository voteRepository;
     @Autowired
     private RsRepository rsRepository;
 
@@ -63,7 +64,7 @@ public class RsController {
             return ResponseEntity.badRequest().build();
         }
         RsEvent rsEvent = new RsEvent(rsEntities.get(index - 1).getEventName(), rsEntities.get(index - 1).getKeyword(),
-                rsEntities.get(index - 1).getUserId(), index - 1, rsEntities.get(index - 1).getVoteNum());
+                rsEntities.get(index - 1).getUser().getId(), index - 1, rsEntities.get(index - 1).getVoteNum());
         return ResponseEntity.ok(rsEvent);
     }
 
@@ -74,7 +75,7 @@ public class RsController {
         List<RsEvent> rsEvents = new ArrayList<>();
         for (int i = 0; i < rsEntities.size(); i++) {
             RsEvent rsEvent = new RsEvent(rsEntities.get(i).getEventName(), rsEntities.get(i).getKeyword(),
-                    rsEntities.get(i).getUserId(),i+1,rsEntities.get(i).getVoteNum());
+                    rsEntities.get(i).getUser().getId(),i+1,rsEntities.get(i).getVoteNum());
 
             rsEvents.add(rsEvent);
         }
@@ -86,18 +87,20 @@ public class RsController {
     }
 
     @PostMapping("/rs/add")
-    public ResponseEntity addRsEvent(@RequestBody RsEvent rsEvent) throws JsonProcessingException {
+    public ResponseEntity addRsEvent(@RequestBody RsEvent rsEvent) throws Exception {
 
+        List<UserEntity> userRepositoryAll = userRepository.findAll();
+
+        if (userRepositoryAll.isEmpty()){
+            throw new Exception();
+        }
+        UserEntity userEntities = userRepositoryAll.get(rsEvent.getUserID());
         RsEntity rsEntity = RsEntity.builder()
                 .eventName(rsEvent.getEventName())
                 .keyword(rsEvent.getKeyword())
-                .userId(rsEvent.getUserID())
+                .user(userEntities)
                 .build();
 
-        Optional<UserEntity> user = userRepository.findById(rsEvent.getUserID());
-        if (!user.isPresent()) {
-            return ResponseEntity.badRequest().build();
-        }
         rsRepository.save(rsEntity);
         return ResponseEntity.created(null).build();
     }
@@ -113,7 +116,7 @@ public class RsController {
     @PatchMapping("/rs/update/{rsEventId}")
     public ResponseEntity updateRsEventInSql(@RequestBody RsEvent rsEvent, @PathVariable Integer rsEventId) throws Exception {
         List<RsEntity> rsEvents = rsRepository.findAll();
-        if (rsEvents.get(rsEventId - 1).getUserId() != rsEvent.getUserID()) {
+        if (rsEvents.get(rsEventId - 1).getUser().getId() != rsEvent.getUserID()) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -133,10 +136,10 @@ public class RsController {
         int userId = voteEntity.getUserId();
         int voteNum = voteEntity.getVoteNum();
         List<UserEntity> users = userRepository.findAll();
-        UserEntity userEntity = users.get(userId - 1);
+        UserEntity userEntity = users.get(userId-1);
 
         List<RsEntity> rsEntities = rsRepository.findAll();
-        RsEntity rsEntity = rsEntities.get(rsEventId - 1);
+        RsEntity rsEntity = rsEntities.get(rsEventId-1);
 
         if (userEntity.getVoteNum() < voteNum) {
             return ResponseEntity.badRequest().build();
@@ -147,7 +150,7 @@ public class RsController {
         userRepository.save(userEntity);
         rsRepository.save(rsEntity);
 
-        // voteRepository.save(voteEntity);
-        return ResponseEntity.ok(null);
+        voteRepository.save(voteEntity);
+        return ResponseEntity.status(201).build();
     }
 }

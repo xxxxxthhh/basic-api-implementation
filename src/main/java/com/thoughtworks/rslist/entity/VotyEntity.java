@@ -3,6 +3,7 @@ import	java.sql.Timestamp;
 
 import com.thoughtworks.rslist.dto.RsEvent;
 import lombok.*;
+import org.apache.catalina.User;
 
 import javax.persistence.*;
 
@@ -20,12 +21,19 @@ public class VotyEntity {
     private Integer rsEventId;
     private int voteNum;
     private Integer userId;
-    private Timestamp voteTime;
+    private String voteTime;
 
-    public VotyEntity(int voteNum, int userId, Timestamp voteTime) {
+    public VotyEntity(Integer rsEventId, int voteNum, int userId, String voteTime) {
+        this.rsEventId = rsEventId;
         this.voteNum = voteNum;
         this.userId = userId;
         this.voteTime = voteTime;
     }
-
+    // @ManyToOne
+    // @JoinColumn(name = "rsEvent_id")
+    // private RsEntity rsEntity;
+    //
+    // @ManyToOne
+    // @JoinColumn(name = "user_id")
+    // private UserEntity userEntity;
 }
