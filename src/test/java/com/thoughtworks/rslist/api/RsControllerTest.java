@@ -36,138 +36,146 @@ import static org.springframework.test.web.servlet.result.JsonPathResultMatchers
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class RsControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
+  @Autowired
+  MockMvc mockMvc;
 
-        //@Test
-    void contextLoads() throws Exception {
-        mockMvc.perform(get("/rs/list"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("[第一条事件, 第二条事件, 第三条事件]"));
-    }
-    @BeforeEach
-    void setUp() throws Exception {
-        RsController.rsList = RsController.initRsList();
-        UserController.userList = UserController.initUserList();
-    }
+  //@Test
+  void contextLoads() throws Exception {
+    mockMvc.perform(get("/rs/list"))
+        .andExpect(status().isOk())
+        .andExpect(content().string("[第一条事件, 第二条事件, 第三条事件]"));
+  }
 
-    @Test
-    void should_return_all_rs_event() throws Exception {
-        mockMvc.perform(get("/rs/sublist"))
-                .andExpect(status().isOk())
-                // .andExpect(jsonPath("$[0]",not(hasKey("userInfo"))))
+  @BeforeEach
+  void setUp() throws Exception {
+    RsController.rsList = RsController.initRsList();
+    UserController.userList = UserController.initUserList();
+  }
 
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
-                .andExpect(jsonPath("$[0].keyword", is("无分类")))
-                .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
-                .andExpect(jsonPath("$[1].keyword", is("无分类")))
-                .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
-                .andExpect(jsonPath("$[2].keyword", is("无分类")));
-        // .andExpect(jsonPath("$[0]", not(hasKey("userInfo"))));
-    }
+  @Test
+  void should_return_all_rs_event() throws Exception {
+    mockMvc.perform(get("/rs/sublist"))
+        .andExpect(status().isOk())
+        // .andExpect(jsonPath("$[0]",not(hasKey("userInfo"))))
 
-    @Test
-    void should_get_one_rs_event() throws Exception {
-        mockMvc.perform(get("/rs/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.eventName", is("第一条事件")))
-                .andExpect(jsonPath("$.keyword", is("无分类")));
+        .andExpect(jsonPath("$", hasSize(3)))
+        .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
+        .andExpect(jsonPath("$[0].keyword", is("无分类")))
+        .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
+        .andExpect(jsonPath("$[1].keyword", is("无分类")))
+        .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
+        .andExpect(jsonPath("$[2].keyword", is("无分类")));
+    // .andExpect(jsonPath("$[0]", not(hasKey("userInfo"))));
+  }
 
-        mockMvc.perform(get("/rs/2"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.eventName", is("第二条事件")))
-                .andExpect(jsonPath("$.keyword", is("无分类")));
+  @Test
+  void should_get_one_rs_event() throws Exception {
+    mockMvc.perform(get("/rs/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.eventName", is("第一条事件")))
+        .andExpect(jsonPath("$.keyword", is("无分类")));
 
-        mockMvc.perform(get("/rs/3"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.eventName", is("第三条事件")))
-                .andExpect(jsonPath("$.keyword", is("无分类")));
-    }
+    mockMvc.perform(get("/rs/2"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.eventName", is("第二条事件")))
+        .andExpect(jsonPath("$.keyword", is("无分类")));
 
-    @Test
-    void should_get_rs_event_by_range() throws Exception {
-        mockMvc.perform(get("/rs/sublist?start=1&end=3"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
-                .andExpect(jsonPath("$[0].keyword", is("无分类")))
-                .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
-                .andExpect(jsonPath("$[1].keyword", is("无分类")))
-                .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
-                .andExpect(jsonPath("$[2].keyword", is("无分类")));
-    }
+    mockMvc.perform(get("/rs/3"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.eventName", is("第三条事件")))
+        .andExpect(jsonPath("$.keyword", is("无分类")));
+  }
 
-    @Test
-    void add_one_rs_event() throws Exception {
-        mockMvc.perform(get("/rs/sublist"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)));
+  @Test
+  void should_get_rs_event_by_range() throws Exception {
+    mockMvc.perform(get("/rs/sublist?start=1&end=3"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(3)))
+        .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
+        .andExpect(jsonPath("$[0].keyword", is("无分类")))
+        .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
+        .andExpect(jsonPath("$[1].keyword", is("无分类")))
+        .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
+        .andExpect(jsonPath("$[2].keyword", is("无分类")));
+  }
 
-        UserDto userDto = new UserDto("google", 20, "male", "abcdefg@gmail.com", "17628282910");
-        RsEvent rsEvent = new RsEvent("第四条事件", "经济", userDto);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(rsEvent);
-        String user = "{name=google, gender=male, age=20, email=abcdefg@gmail.com, phone=17628282910}";
+  @Test
+  void add_one_rs_event() throws Exception {
+    mockMvc.perform(get("/rs/sublist"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(3)));
 
-        mockMvc.perform(post("/rs/event").content(json)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("index", "3"));
+    UserDto userDto = new UserDto("google", 20, "male", "abcdefg@gmail.com", "17628282910");
+    RsEvent rsEvent = new RsEvent("第四条事件", "经济", userDto);
+    ObjectMapper objectMapper = new ObjectMapper();
+    String json = objectMapper.writeValueAsString(rsEvent);
+    String user = "{name=google, gender=male, age=20, email=abcdefg@gmail.com, phone=17628282910}";
 
-        mockMvc.perform(get("/rs/sublist"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(4)))
-                .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
-                .andExpect(jsonPath("$[0].keyword", is("无分类")))
-                .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
-                .andExpect(jsonPath("$[1].keyword", is("无分类")))
-                .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
-                .andExpect(jsonPath("$[2].keyword", is("无分类")))
-                .andExpect(jsonPath("$[3].eventName", is("第四条事件")))
-                .andExpect(jsonPath("$[3].keyword", is("经济")));
+    mockMvc.perform(post("/rs/event").content(json)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated())
+        .andExpect(header().string("index", "3"));
 
-        // .andExpect(jsonPath("$[3].userInfo", );
+    mockMvc.perform(get("/rs/sublist"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(4)))
+        .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
+        .andExpect(jsonPath("$[0].keyword", is("无分类")))
+        .andExpect(jsonPath("$[1].eventName", is("第二条事件")))
+        .andExpect(jsonPath("$[1].keyword", is("无分类")))
+        .andExpect(jsonPath("$[2].eventName", is("第三条事件")))
+        .andExpect(jsonPath("$[2].keyword", is("无分类")))
+        .andExpect(jsonPath("$[3].eventName", is("第四条事件")))
+        .andExpect(jsonPath("$[3].keyword", is("经济")));
 
-    }
+    // .andExpect(jsonPath("$[3].userInfo", );
 
-    @Test
-    void update_one_Rs_event() throws Exception {
-        // RsEvent rsEvent = new RsEvent("第五条事件","花边新闻");
-        mockMvc.perform(post("/rs/update")
-                .param("updateIndex", "1")
-                .param("eventName", "第五条事件")
-                .param("keyword", "花边新闻"))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("index", "0"))
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].eventName", is("第五条事件")))
-                .andExpect(jsonPath("$[0].keyword", is("花边新闻")));
-    }
+  }
 
-    @Test
-    void delete_event_by_index() throws Exception {
-        mockMvc.perform(get("/rs/delEvent/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].eventName", is("第二条事件")))
-                .andExpect(jsonPath("$[0].keyword", is("无分类")));
-    }
+  @Test
+  void update_one_Rs_event() throws Exception {
+    // RsEvent rsEvent = new RsEvent("第五条事件","花边新闻");
+    mockMvc.perform(post("/rs/update")
+        .param("updateIndex", "1")
+        .param("eventName", "第五条事件")
+        .param("keyword", "花边新闻"))
+        .andExpect(status().isCreated())
+        .andExpect(header().string("index", "0"))
+        .andExpect(jsonPath("$", hasSize(3)))
+        .andExpect(jsonPath("$[0].eventName", is("第五条事件")))
+        .andExpect(jsonPath("$[0].keyword", is("花边新闻")));
+  }
 
-    @Test
-    void should_return_all_rs_event_without_users() throws Exception {
-        mockMvc.perform(get("/rs/sublist"))
-                .andExpect(jsonPath("$[0]", Matchers.not(hasProperty("user"))));
-    }
+  @Test
+  void delete_event_by_index() throws Exception {
+    mockMvc.perform(get("/rs/delEvent/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(2)))
+        .andExpect(jsonPath("$[0].eventName", is("第二条事件")))
+        .andExpect(jsonPath("$[0].keyword", is("无分类")));
+  }
 
-    // @Test //still need improve
-    public void given_out_of_bound_start_and_end_then_handle_exception() throws Exception {
-        int start = -1;
-        int end = 9;
-        String url = "/rs/sublist?start=" + start + "&end=" + end ;
-        mockMvc.perform(get(url))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("invalid request param")));
-    }
+  @Test
+  void should_return_all_rs_event_without_users() throws Exception {
+    mockMvc.perform(get("/rs/sublist"))
+        .andExpect(jsonPath("$[0]", Matchers.not(hasProperty("user"))));
+  }
 
+  @Test
+  public void given_out_of_bound_start_and_end_then_handle_exception() throws Exception {
+    int start = -1;
+    int end = 9;
+    String url = "/rs/sublist?start=" + start + "&end=" + end;
+    mockMvc.perform(get(url))
+        .andExpect(jsonPath("$.error", is("invalid request param")))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void given_out_of_band_index_handle_exception() throws Exception {
+    int index = 100;
+    String url = "/rs/" + index;
+    mockMvc.perform(get(url)).andExpect(jsonPath("$.error", is("invalid index")))
+        .andExpect(status().isBadRequest());
+  }
 }

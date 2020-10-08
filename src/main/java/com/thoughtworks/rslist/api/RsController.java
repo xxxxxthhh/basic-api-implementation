@@ -3,9 +3,12 @@ package com.thoughtworks.rslist.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thoughtworks.rslist.Exception.CommentError;
+import com.thoughtworks.rslist.Exception.RsIndexException;
 import com.thoughtworks.rslist.Exception.StartEndException;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.UserDto;
+import jdk.net.SocketFlow;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +40,10 @@ public class RsController {
 
 
     @GetMapping("/rs/{index}")
-    public ResponseEntity<RsEvent> getRsEvent(@PathVariable int index) {
+    public ResponseEntity<RsEvent> getRsEvent(@PathVariable int index) throws RsIndexException {
+        if (index<1||index>=rsList.size()){
+          throw new RsIndexException("invalid index");
+        }
         return ResponseEntity.ok(rsList.get(index - 1));
     }
 
@@ -80,5 +86,24 @@ public class RsController {
     public ResponseEntity<List<RsEvent>> delEvent(@PathVariable int index) {
         rsList.remove(index - 1);
         return ResponseEntity.ok(rsList);
+    }
+
+    @ExceptionHandler({StartEndException.class, RsIndexException.class})
+    public ResponseEntity<CommentError> handleIndexOutOfRangeException(Exception ex){
+      if (ex instanceof StartEndException){
+        CommentError commentError = new CommentError();
+        commentError.setError(ex.getMessage());
+        return ResponseEntity.badRequest().body(commentError);
+      }
+
+      if (ex instanceof RsIndexException){
+        CommentError commentError = new CommentError();
+        commentError.setError(ex.getMessage());
+        return ResponseEntity.badRequest().body(commentError);
+      }
+
+      CommentError commentError = new CommentError();
+      commentError.setError("Invalid Param");
+      return ResponseEntity.badRequest().body(commentError);
     }
 }
